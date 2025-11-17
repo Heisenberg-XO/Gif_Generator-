@@ -1,10 +1,10 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
 
 st.title("GIF Generator 🌀")
-st.write("Upload images and I will convert them into a GIF for you!")
+st.write("Upload images, add optional text, and convert them into a GIF!")
 
 uploaded_files = st.file_uploader(
     "Upload PNG or JPG images",
@@ -14,12 +14,27 @@ uploaded_files = st.file_uploader(
 
 duration = st.slider("Frame duration (ms)", 100, 1000, 300)
 
+text_overlay = st.text_input("Add text to GIF (optional):")
+
 if st.button("Create GIF"):
     if uploaded_files:
         frames = []
 
         for file in uploaded_files:
             img = Image.open(file).convert("RGB")
+            
+            # Add text overlay if user typed anything
+            if text_overlay:
+                draw = ImageDraw.Draw(img)
+                font = ImageFont.load_default()
+                
+                text = text_overlay
+                text_width, text_height = draw.textsize(text, font=font)
+                x = (img.width - text_width) / 2
+                y = img.height - text_height - 10  
+
+                draw.text((x, y), text, font=font, fill="white")
+
             frames.append(img)
 
         gif_bytes = io.BytesIO()
@@ -58,3 +73,4 @@ if st.button("Create GIF"):
 
     else:
         st.error("Please upload at least one image.")
+
