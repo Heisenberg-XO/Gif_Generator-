@@ -5,7 +5,7 @@ Download the script below and run it in the same folder as your images.
 ### 📥 Download Script
 Click the link below to download the Python file:
 
-➡️ **[Download gif_creator.py](gif_creator.py)**
+➡️ **[Download gif_creator.py](gif_creation.py)**
 
 ---
 
