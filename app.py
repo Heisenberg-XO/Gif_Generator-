@@ -23,15 +23,21 @@ if st.button("Create GIF"):
         for file in uploaded_files:
             img = Image.open(file).convert("RGB")
             
-            # Add text overlay if user typed anything
+            # Add text overlay if provided
             if text_overlay:
                 draw = ImageDraw.Draw(img)
                 font = ImageFont.load_default()
-                
+
                 text = text_overlay
-                text_width, text_height = draw.textsize(text, font=font)
+
+                # FIX: textsize() removed, so use textbbox()
+                bbox = draw.textbbox((0, 0), text, font=font)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+
+                # Center bottom position
                 x = (img.width - text_width) / 2
-                y = img.height - text_height - 10  
+                y = img.height - text_height - 10
 
                 draw.text((x, y), text, font=font, fill="white")
 
@@ -50,7 +56,7 @@ if st.button("Create GIF"):
 
         st.success("GIF created successfully!")
 
-        # 🔥 Animated GIF Preview (base64)
+        # Animated preview (base64)
         gif_data = gif_bytes.getvalue()
         gif_base64 = base64.b64encode(gif_data).decode("utf-8")
 
