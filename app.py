@@ -16,41 +16,45 @@ duration = st.slider("Frame duration (ms)", 100, 1000, 300)
 
 text_overlay = st.text_input("Add text to GIF (optional):")
 
-
 if st.button("Create GIF"):
     if uploaded_files:
         frames = []
 
         for file in uploaded_files:
             img = Image.open(file).convert("RGB")
-            
-            # Add text overlay with stroke
+
             if text_overlay:
                 draw = ImageDraw.Draw(img)
-                font = ImageFont.load_default()
+
+                # 🔥 Larger, clearer font (even on Streamlit Cloud)
+                try:
+                    font = ImageFont.truetype("arial.ttf", 40)
+                except:
+                    font = ImageFont.load_default()
 
                 text = text_overlay
 
-                # Get text size using textbbox (works on new Pillow)
+                # Correct text size calculation
                 bbox = draw.textbbox((0, 0), text, font=font)
                 text_width = bbox[2] - bbox[0]
                 text_height = bbox[3] - bbox[1]
 
-                # Center bottom positioning
+                # Bottom center
                 x = (img.width - text_width) / 2
-                y = img.height - text_height - 20
+                y = img.height - text_height - 40
 
-                # 🔥 Black outline stroke (thicker & cleaner)
-                stroke = 3
+                # 🔥 Strong black stroke outline
+                stroke = 4
                 for dx in range(-stroke, stroke + 1):
                     for dy in range(-stroke, stroke + 1):
                         draw.text((x + dx, y + dy), text, font=font, fill="black")
 
-                # 🔥 Main white text
+                # Main white text
                 draw.text((x, y), text, font=font, fill="white")
 
             frames.append(img)
 
+        # Create GIF
         gif_bytes = io.BytesIO()
         frames[0].save(
             gif_bytes,
@@ -64,16 +68,16 @@ if st.button("Create GIF"):
 
         st.success("GIF created successfully!")
 
-        # Animated preview using base64
+        # Animated preview with base64
         gif_data = gif_bytes.getvalue()
         gif_base64 = base64.b64encode(gif_data).decode("utf-8")
 
         st.markdown("### 🔥 GIF Preview (Animated)")
         st.markdown(
             f"""
-            <div style="display:flex; justify-content:center;">
-                <img src="data:image/gif;base64,{gif_base64}" 
-                     style="max-width:90%; border-radius:10px;" />
+            <div style='display:flex;justify-content:center;'>
+                <img src='data:image/gif;base64,{gif_base64}'
+                     style='max-width:90%;border-radius:10px;' />
             </div>
             """,
             unsafe_allow_html=True
